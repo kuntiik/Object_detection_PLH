@@ -1,0 +1,15 @@
+defaults:
+  - _self_
+  - trainer: default.yaml
+  # - model: mnist_model.yaml
+  - model : faster_rcnn.yaml
+  - datamodule : pascal_voc.yaml
+  - logger : wandb
+  - callbacks : default.yaml
+  # - logger: wandb # set logger here or use command line (e.g. `python run.py logger=wandb`)
+  - override hydra/hydra_logging: colorlog
+  - override hydra/job_logging: colorlog
+
+seed : null
+name : null
+ignore_warnings: False

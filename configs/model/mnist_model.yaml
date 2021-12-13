@@ -1,0 +1,7 @@
+_target_ : src.modules.mnist_module.MNISTModel
+
+input_size : 784
+hidden_size : 1024
+output_size : 10
+lr : 0.001
+weight_decay : 0.0005

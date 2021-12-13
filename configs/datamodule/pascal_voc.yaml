@@ -1,0 +1,4 @@
+_target_ : pl_bolts.datamodules.VOCDetectionDataModule
+# batch_size : 32
+data_dir : "/home.stud/kuntluka/dataset"
+num_workers : 8
