@@ -1,4 +1,9 @@
 *.jpg
 *.png
 *.pyc
+wandb
+notebooks/wandb
+notebooks/lightning_logs
+lightning_logs/
 outputs
+.vscode
