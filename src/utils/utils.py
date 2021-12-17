@@ -2,6 +2,8 @@ import logging
 from pytorch_lightning.utilities import rank_zero_only
 import warnings
 from omegaconf import DictConfig
+import torch
+from torch.utils.data import DataLoader
 
 def get_logger(name=__name__) -> logging.Logger:
     logger = logging.getLogger(name)
@@ -49,3 +51,16 @@ def extras(config: DictConfig) -> None:
             config.datamodule.pin_memory = False
         if config.datamodule.get("num_workers"):
             config.datamodule.num_workers = 0
+
+def get_dataset_mean_std(dataloader : DataLoader):
+    channels_sum, channels_squared_sum, num_batches = 0, 0, 0
+
+    for data, _ in dataloader:
+        data = torch.stack(data)
+        channels_sum += torch.mean(data, dim=[0,2,3])
+        channels_squared_sum += torch.mean(data**2, dim=[0,2,3])
+        num_batches += 1
+    
+    mean = channels_sum / num_batches
+    std = (channels_squared_sum/num_batches - mean**2)**0.5
+    return mean, std

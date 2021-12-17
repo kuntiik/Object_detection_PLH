@@ -240,8 +240,12 @@ class COCODataset(Dataset):
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
         self.Atransforms = A.Compose([
-            A.Resize(width=224, height=224),
-            A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), max_pixel_value=255.0),
+            A.Resize(width=1014, height=768),
+            # A.Normalize(mean=(0,0,0), std=(1,1,1), max_pixel_value=255.0),
+            #coco
+            # A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), max_pixel_value=255.0),
+            #carries
+            A.Normalize(mean=(0.3669, 0.3669, 0.3669), std=(0.2768, 0.2768, 0.2768)),
             ToTensorV2()
         ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels'], min_visibility=0.4, min_area=5))
         self.category_names = {}
@@ -285,18 +289,44 @@ class COCODataset(Dataset):
 def collate(batch):
     return tuple(zip(*batch))
 
+
+def get_dataset_mean_std(dataloader : DataLoader):
+    channels_sum, channels_squared_sum, num_batches = 0, 0, 0
+
+    for data, _ in dataloader:
+        data = torch.stack(data)
+        channels_sum += torch.mean(data, dim=[0,2,3])
+        channels_squared_sum += torch.mean(data**2, dim=[0,2,3])
+        num_batches += 1
+    
+    mean = channels_sum / num_batches
+    std = (channels_squared_sum/num_batches - mean**2)**0.5
+    return mean, std
+
+dataset_images_path = Path("/home.stud/kuntluka/dataset/carries_dataset/images")
+dataset_annotations_path = Path("/home.stud/kuntluka/dataset/carries_dataset/annotations.json")
+# dataset = COCODataset(dataset_images_path, dataset_annotations_path)
+# x, y = dataset[0]
+# loader = DataLoader(dataset, batch_size=4, collate_fn=collate, num_workers=0, shuffle=True)
+# from utils.utils import get_dataset_mean_std
+# mean, std = get_dataset_mean_std(loader)
 # val_dataset = COCODataset(val_root, val_annotations)
 # train_dataset = COCODataset(train_root, train_annotations)
 cars_annotations = "/home.stud/kuntluka/dataset/cars/data/train_solution_bounding_boxes.csv"
 training_root = "/home.stud/kuntluka/dataset/cars/data/training_images"
 # val_dataset = COCODataset(training_root, cars_annotations)
-val_dataset = CarsDataset(training_root, cars_annotations)
+# val_dataset = CarsDataset(training_root, cars_annotations)
+torch.manual_seed(0)
+full_dataset = COCODataset(dataset_images_path, dataset_annotations_path)
+train_size = int(0.9 * len(full_dataset))
+val_size = len(full_dataset) - train_size
+train_dataset, val_dataset = torch.utils.data.random_split(full_dataset, [train_size, val_size])
 
-train_loader = DataLoader(val_dataset, batch_size=4, collate_fn=collate, num_workers=8, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=4, collate_fn=collate, num_workers=8, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=4, collate_fn=collate, num_workers=8, shuffle=False)
 # val_loader = DataLoader(val_dataset, batch_size = 4, collate_fn=collate, num_workers=4, shuffle=False)
 # foo = next(iter(val_loader))
-model = FasterRCNN(num_classes = 2, pretrained=True)
+model = FasterRCNN(num_classes = 2, pretrained=False, trainable_backbone_layers=5)
 wandb_logger = WandbLogger()
 trainer = Trainer(gpus=1, auto_select_gpus=True, auto_lr_find = True,
             logger=wandb_logger, callbacks=LogImagePredictions(),
