@@ -1,0 +1,5 @@
+_target_ : src.modules.faster_rcnn_module.FasterRCNN
+num_classes : 1 
+pretrained : False
+pretrained_backbone : True
+learning_rate : 8.3e-5

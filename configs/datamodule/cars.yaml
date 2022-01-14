@@ -1,0 +1,5 @@
+_target_ : src.datamodules.cars_datamodule.CarsDataModule
+
+data_root : "/home.stud/kuntluka/dataset/cars/data/training_images"
+ann_file : "/home.stud/kuntluka/dataset/cars/data/train_solution_bounding_boxes.csv"
+batch_size : 4

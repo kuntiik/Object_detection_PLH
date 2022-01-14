@@ -1,0 +1,2 @@
+_target_ : src.modules.efficientdet_module.EfficientDetModule
+# num_classes : 1

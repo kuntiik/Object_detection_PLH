@@ -5,10 +5,13 @@ from pytorch_lightning import (Callback, LightningDataModule, LightningModule, T
 
 from pytorch_lightning.loggers import LightningLoggerBase
 from pl_bolts.datamodules import MNISTDataModule
+# from modules.faster_rcnn_module
 
 from src.utils import utils
 
 log = utils.get_logger(__name__)
+
+from src.modules.efficientdet_module import EfficientDetModule
 
 def train(config : DictConfig):
     if config.get("seed"):
@@ -16,6 +19,8 @@ def train(config : DictConfig):
     
     log.info(f"Instantiating module <{config.model._target_}>")
     model = hydra.utils.instantiate(config.model)
+    # model = EfficientDetModule()
+
 
     callbacks = []
     if "callbacks" in config:
@@ -37,5 +42,6 @@ def train(config : DictConfig):
     # dm = MNISTDataModule(num_workers=4, pin_memory=False)
     dm = hydra.utils.instantiate(config.datamodule)
 
+    trainer.tune(model=model, datamodule=dm)
     log.info("Starting training")
     trainer.fit(model=model, datamodule=dm)

@@ -1,13 +1,18 @@
 _target_: pytorch_lightning.Trainer
 
+# fast_dev_run : True
 gpus: 1
+auto_select_gpus : True
+# auto_lr_find : True
+# overfit_batches : 8
 
 min_epochs: 1
-max_epochs: 10
+max_epochs: 300
 
-progress_bar_refresh_rate: 5
+# progress_bar_refresh_rate: 1
+# limit_train_batches : 0.05
 resume_from_checkpoint: null
-weights_summary: "full"
+# weights_summary: "full"
 
 # number of validation steps to execute at the beginning of the training
 # num_sanity_val_steps: 0

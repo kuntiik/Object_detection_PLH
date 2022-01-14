@@ -1,0 +1,7 @@
+
+_target_ : src.datamodules.dentalcarries_datamodule.DentalCarriesDataModule
+
+data_root : "/home.stud/kuntluka/dataset/carries_dataset/images"
+ann_file : "/home.stud/kuntluka/dataset/carries_dataset/annotations.json"
+batch_size : 4
+num_workers : 8
